@@ -20,8 +20,8 @@ for x in times:
 df['DoW'] = DoW
 df['HoD'] = HoD
 
-# Target columns are all feeders excepet for three that have too many zero value
-targetColumns = list(df.columns[1:19]) + list(df.columns[21:22])
+# Target columns are all feeders excepet for four that have too many zero value
+targetColumns = list(df.columns[1:4]) + list(df.columns[5:19]) + list(df.columns[21:22])
 # Uses all weather and time predictor values
 predictors = list(df.columns)[23:]
 # Normalise predictor values
