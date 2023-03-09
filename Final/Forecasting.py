@@ -22,43 +22,56 @@ df['HoD'] = HoD
 
 # Target columns are all feeders excepet for four that have too many zero value
 targetColumns = list(df.columns[1:4]) + list(df.columns[5:19]) + list(df.columns[21:22])
+# Create a 1 and 7 day persistance forecast for each feeder
+for name in targetColumns:
+    df[name + "_1day_pers"] = df[name].shift(48, axis=0)
+    df[name + "_7day_pers"] = df[name].shift(336, axis=0)
 # Uses all weather and time predictor values
-predictors = list(df.columns)[23:]
+predictorsAll = list(df.columns)[23:]
 # Normalise predictor values
-df[predictors] = df[predictors]/df[predictors].max()
+df[predictorsAll] = df[predictorsAll]/df[predictorsAll].max()
 
-# Split data into test and train
-# Train from Jan - May
-# Test on June
-X = np.split(df[predictors].values, [7247,8687])
-y = np.split(df[targetColumns].values, [7247,8687])
-
-X_train = X[0]
-X_test = X[1]
-y_train = y[0]
-y_test = y[1]
-
-# Create NN model
 print("Begin model fitting")
 t = time.time()
-mlp = MLPRegressor(hidden_layer_sizes=(9,9,9), activation='relu', solver='adam', max_iter=5000)
-mlp.fit(X_train,y_train)
-elapsed = time.time() - t
-print ('Time to fit model:', elapsed)
+mlpAll = []
+data = np.empty((18,1440))
+i = 0
+# Create seperate model for each feeder
+for name in targetColumns:
+    # Predictors are day of week, hour of day, air temp
+    # and both persistance forecasts for that feeder
+    predictors = ['DoW', 'HoD', name + "_1day_pers", name + "_7day_pers", 'Air Temperature']
+    targetColumn = name
 
-# Output predicted values in June
-data = mlp.predict(X_test)
+    # Split data into test and train
+    # Train from Jan - May
+    # Test on June
+    X = np.split(df[predictors].values, [336,7247,8687])
+    y = np.split(df[targetColumn].values, [336,7247,8687])
+
+    X_train = X[1]
+    X_test = X[2]
+    y_train = y[1]
+    y_test = y[2]
+
+    print("Training model", i+1)
+    mlp = MLPRegressor(hidden_layer_sizes=(5,5,5), activation='relu', solver='adam', max_iter=5000)
+    mlp.fit(X_train,y_train)
+    mlpAll.append(mlp)
+
+    predict_test = mlp.predict(X_test)
+    data[i] = predict_test
+    i += 1
+
+elapsed = time.time() - t
+print ('Time to fit all models:', elapsed)
 
 # Reshape data into 3d array
-data2 = []
-for feeder in range(data.shape[1]):
-    tempDays = []
-    for day in range(0,data.shape[0],48):
-        temp = []
-        for i in range(48):
-            temp.append(data[day+i][feeder])
-        tempDays.append(temp)
-    data2.append(tempDays)
+data2 = np.empty((18,30,48))
+for feeder in range(data2.shape[0]):
+    for day in range(data2.shape[1]):
+        for hour in range(data2.shape[2]):
+            data2[feeder][day][hour] = data[feeder][day*48 + hour]
 
 data = np.asarray(data2)
 
