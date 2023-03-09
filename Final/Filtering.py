@@ -35,7 +35,7 @@ def Filter_F1(data):
     
     UpperBounds, LowerBounds = FindBounds(data)
 
-    A_peak = 1.2
+    A_peak = 0.8
     h = 48
 
     forecast_F1 = np.empty((data.shape[0], data.shape[1], data.shape[2]))
@@ -59,7 +59,7 @@ def Filter_F2(data):
 
     forecast_F2 = np.array(data)
     F1 = np.array(data)
-    Wpeak = 1
+    Wpeak = 2
     Npeak = 3
 
     for feeder in range(data.shape[0]):
@@ -84,9 +84,18 @@ def Filter_F3(data):
 load_data = np.loadtxt("Final/forecastData.txt")
 forecast_data = load_data.reshape(load_data.shape[0], load_data.shape[1] // 48, 48)
 
+print("Performing Filter F1")
 forecast_F1 = Filter_F1(forecast_data)
+print("Performing Filter F2")
 forecast_F2 = Filter_F2(forecast_F1)
+print("Performing Filter F3")
 forecast_F3 = Filter_F3(forecast_F2)
 
 data_reshaped = forecast_F3.reshape(forecast_F3.shape[0], -1)
 np.savetxt("Final/filterData.txt", data_reshaped)
+
+y = list(range(48))
+plt.plot(y, forecast_F3[0][0], label="F3")
+plt.plot(y, forecast_data[0][0], label="orig")
+plt.legend()
+plt.show()
