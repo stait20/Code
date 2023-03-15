@@ -35,11 +35,11 @@ def Run_Scheduler(batt, loadDict):
     m.Batt_SOC = Constraint(m.Time, rule=SOC_rule)
 
     def charging_rule(m,t):
-        return m.chargingWatts[t] <= m.chargingLimit
+        return m.chargingWatts[t] <= m.chargingLimit * 0.95
     m.charging_rule = Constraint(m.Time, rule=charging_rule)
 
     def discharging_rule(m,t):
-        return m.dischargingWatts[t] <= m.dischargingLimit
+        return m.dischargingWatts[t] <= m.dischargingLimit / 0.95
     m.discharging_rule = Constraint(m.Time, rule=discharging_rule)
 
     # ensure charging rate obeyed
@@ -94,7 +94,7 @@ def Run_Scheduler(batt, loadDict):
 t = time.time()
 
 load_data = np.loadtxt("Final/filterData.txt")
-peakLoad = np.amax(load_data, axis=0)
+peakLoad = np.amax(load_data, axis=1)
 filter_data = load_data.reshape(load_data.shape[0], load_data.shape[1] // 48, 48)
 
 class Battery:
@@ -109,7 +109,7 @@ class Battery:
 batteries = []
 for i in range(filter_data.shape[0]):
     batteries.append(Battery(peakLoad[i]))
-    print(batteries[i].maxSOC)
+    print(peakLoad[i])
 
 models = []
 for feeder in range(filter_data.shape[0]):
