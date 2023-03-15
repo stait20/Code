@@ -22,6 +22,9 @@ df['HoD'] = HoD
 
 # Target columns are all feeders excepet for four that have too many zero value
 targetColumns = list(df.columns[1:4]) + list(df.columns[5:19]) + list(df.columns[21:22])
+# Find peak loads for later use
+peakLoads = np.asarray(np.amax(df[targetColumns], axis=0))
+np.savetxt("Final/peakLoads.txt", peakLoads)
 # Create a 1 and 7 day persistance forecast for each feeder
 for name in targetColumns:
     df[name + "_1day_pers"] = df[name].shift(48, axis=0)
