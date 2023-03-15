@@ -115,7 +115,7 @@ models = []
 for feeder in range(filter_data.shape[0]):
     for day in range(filter_data.shape[1]):
         loadDict = dict(enumerate(filter_data[feeder][day]))
-        print("Solving model ", feeder*18 + day + 1, " out of 540")
+        print("Solving model ", feeder*30 + day + 1, " out of 540")
         models.append(Run_Scheduler(batteries[feeder], loadDict))
 
 models = np.asarray(models)
