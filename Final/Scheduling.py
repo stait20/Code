@@ -93,7 +93,7 @@ def Run_Scheduler(batt, loadDict):
 
 t = time.time()
 
-load_data = np.loadtxt("Final/filterData.txt")
+load_data = np.loadtxt("Final/forecastData.txt")
 peakLoad = np.amax(load_data, axis=1)
 filter_data = load_data.reshape(load_data.shape[0], load_data.shape[1] // 48, 48)
 
