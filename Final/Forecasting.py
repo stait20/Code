@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 from sklearn.neural_network import MLPRegressor
+from sklearn import linear_model
 import time
 
 # Read csv file, convert time to datetime data type
@@ -58,11 +59,12 @@ for name in targetColumns:
     y_test = y[2]
 
     print("Training model", i+1)
-    mlp = MLPRegressor(hidden_layer_sizes=(5,5,5), activation='relu', solver='adam', max_iter=5000)
-    mlp.fit(X_train,y_train)
-    mlpAll.append(mlp)
+    #mlp = MLPRegressor(hidden_layer_sizes=(5,5,5), activation='relu', solver='adam', max_iter=5000)
+    reg = linear_model.LinearRegression()
+    reg.fit(X_train,y_train)
+    mlpAll.append(reg)
 
-    predict_test = mlp.predict(X_test)
+    predict_test = reg.predict(X_test)
     data[i] = predict_test
     i += 1
 

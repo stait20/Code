@@ -34,22 +34,22 @@ def Run_Scheduler(batt, loadDict):
             return(m.SOC[t] == m.SOC[t-1] + m.posDeltaSOC[t] - m.negDeltaSOC[t])
     m.Batt_SOC = Constraint(m.Time, rule=SOC_rule)
 
-    def charging_rule(m,t):
-        return m.chargingWatts[t] <= m.chargingLimit * 0.95
-    m.charging_rule = Constraint(m.Time, rule=charging_rule)
+    # def charging_rule(m,t):
+    #     return m.chargingWatts[t] <= m.chargingLimit * 0.95
+    # m.charging_rule = Constraint(m.Time, rule=charging_rule)
 
-    def discharging_rule(m,t):
-        return m.dischargingWatts[t] <= m.dischargingLimit / 0.95
-    m.discharging_rule = Constraint(m.Time, rule=discharging_rule)
+    # def discharging_rule(m,t):
+    #     return m.dischargingWatts[t] <= m.dischargingLimit / 0.95
+    # m.discharging_rule = Constraint(m.Time, rule=discharging_rule)
 
     # ensure charging rate obeyed
     def E_charging_rate_rule(m,t):
-        return m.posDeltaSOC[t] == m.chargingWatts[t] * 0.5
+        return m.posDeltaSOC[t] == (m.chargingWatts[t] * 0.95) * 0.5
     m.chargingLimit_cons = Constraint(m.Time, rule=E_charging_rate_rule)
 
     # ensure DIScharging rate obeyed
     def E_discharging_rate_rule(m,t):
-        return m.negDeltaSOC[t] == m.dischargingWatts[t] * 0.5
+        return m.negDeltaSOC[t] == (m.dischargingWatts[t] / 0.95) * 0.5
     m.dischargingLimit_cons = Constraint(m.Time, rule=E_discharging_rate_rule)
 
     def demand_rule(m,t):
@@ -94,7 +94,8 @@ def Run_Scheduler(batt, loadDict):
 t = time.time()
 
 load_data = np.loadtxt("Final/forecastData.txt")
-peakLoad = np.amax(load_data, axis=1)
+#peakLoad = np.amax(load_data, axis=1)
+peakLoad = np.loadtxt("Final/peakLoads.txt")
 filter_data = load_data.reshape(load_data.shape[0], load_data.shape[1] // 48, 48)
 
 class Battery:
