@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import datetime
-from sklearn.neural_network import MLPRegressor
 from sklearn import linear_model
 import time
 
@@ -37,7 +36,7 @@ df[predictorsAll] = df[predictorsAll]/df[predictorsAll].max()
 
 print("Begin model fitting")
 t = time.time()
-mlpAll = []
+regAll = []
 data = np.empty((18,1440))
 i = 0
 # Create seperate model for each feeder
@@ -62,7 +61,7 @@ for name in targetColumns:
     #mlp = MLPRegressor(hidden_layer_sizes=(5,5,5), activation='relu', solver='adam', max_iter=5000)
     reg = linear_model.LinearRegression()
     reg.fit(X_train,y_train)
-    mlpAll.append(reg)
+    regAll.append(reg)
 
     predict_test = reg.predict(X_test)
     data[i] = predict_test
